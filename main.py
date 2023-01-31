@@ -1,9 +1,9 @@
 
-import  pandas as pd
-from    flask import Flask, request, jsonify
-from    textblob import TextBlob
-from    sklearn.linear_model import LinearRegression
-
+import pandas as pd
+from flask import Flask, request, jsonify
+from textblob import TextBlob
+from sklearn.linear_model import LinearRegression
+from flask_basicauth import BasicAuth
 import pickle
 
 
@@ -13,6 +13,10 @@ columns = ['tamanho', 'ano', 'garagem']
 model = pickle.load(open('model.sav', 'rb'))
 
 app = Flask(__name__)
+app.config['BASIC_AUTH_USERNAME'] = 'mikeias'
+app.config['BASIC_AUTH_PASSWORD'] = '12345'
+
+basic_auth = BasicAuth(app)
 
 @app.route('/')
 def home():
@@ -28,6 +32,7 @@ def cotacao():
 
 
 @app.route('/sentimento/<frase>')
+@basic_auth.required
 def sentimento(frase):
     tb = TextBlob(frase)
     tb_en = tb.translate(from_lang='pt', to= 'en')
