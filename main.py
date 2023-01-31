@@ -3,22 +3,14 @@ import  pandas as pd
 from    flask import Flask, request, jsonify
 from    textblob import TextBlob
 from    sklearn.linear_model import LinearRegression
-from    sklearn.model_selection import train_test_split
+
+import pickle
 
 
 SEED = 42
-
-df = pd.read_csv('./data/data.csv')
-
 columns = ['tamanho', 'ano', 'garagem']
 
-X = df.drop('preco', axis=1)
-y = df.preco
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state= SEED, test_size=0.3)
-
-model = LinearRegression()
-model.fit(X_train, y_train)
+model = pickle.load(open('model.sav', 'rb'))
 
 app = Flask(__name__)
 
