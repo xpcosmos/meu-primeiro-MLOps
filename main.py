@@ -1,14 +1,18 @@
-from flask import Flask
-from textblob import TextBlob
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-import pandas as pd
+
+import  pandas as pd
+from    flask import Flask, request, jsonify
+from    textblob import TextBlob
+from    sklearn.linear_model import LinearRegression
+from    sklearn.model_selection import train_test_split
+
 
 SEED = 42
 
-df = pd.read_csv('/Users/mikeiasoliveira/Documents/Projetos/meu-primeiro-MLOps/data/data.csv')
+df = pd.read_csv('./data/data.csv')
 
-X = df[['tamanho']]
+columns = ['tamanho', 'ano', 'garagem']
+
+X = df.drop('preco', axis=1)
 y = df.preco
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state= SEED, test_size=0.3)
@@ -22,10 +26,13 @@ app = Flask(__name__)
 def home():
     return "Minha primeira API."
 
-@app.route('/cotacao/<int:tamanho>')
-def cotacao(tamanho):
-    preco = model.predict([[tamanho]])
-    return str(preco)
+@app.route('/cotacao/', methods=['POST'])
+def cotacao():
+    dados = request.get_json()
+    dados_input = [dados[col] for col in columns]
+    
+    preco = model.predict([dados_input])
+    return jsonify(preco=preco[0])
 
 
 @app.route('/sentimento/<frase>')
